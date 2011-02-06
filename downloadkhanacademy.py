@@ -14,7 +14,7 @@ import sys
 addressList = []
 
 wget = 'wget -c --quiet --output-document'
-getflash = 'get_flash_videos --quiet --quality 240p --filename'
+getflash = 'get_flash_videos --quiet --quality low --filename'
 youtube = "http://www.youtube.com/watch?v="
 
 
@@ -65,26 +65,23 @@ def download():
         counter = 0
         for i in addressList:
             address = i.split('<>')[0]
-            classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '" '
+            classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
         
             tmp = getflash + classroom + youtube + address
-            print( tmp )
+            print('\n' + tmp )
+            os.system( tmp )
             counter = counter + 1
 
             tmp = 'mv -f ' + classroom + ' ' + courseDirName
             print( tmp )
-            #os.system( tmp )
-
+            os.system( tmp )
         
 
-        sys.exit()
 
 
 # ------------------------------------------------------------
 # Main
 # ------------------------------------------------------------
 if __name__ == "__main__":
-
     download()
-
 

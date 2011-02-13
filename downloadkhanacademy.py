@@ -13,10 +13,17 @@ import sys
 # ------------------------------------------------------------
 addressList = []
 
-wget = 'wget -c --quiet --output-document'
-getflash = 'get_flash_videos --quiet --quality low --filename'
+
+wget = 'wget -c --output-document'
+getflash = 'get_flash_videos --quality low --filename'
 youtube = "http://www.youtube.com/watch?v="
 
+messageIfDownloadFinished = 'Done. Saved'
+messageIfAlreadyDownloaded = 'has been fully downloaded'
+flagRetry = False
+
+mainIndexFilename = 'index'
+downloadOutputFilename = 'temp'
 
 # ------------------------------------------------------------
 # Functions
@@ -34,14 +41,14 @@ def returnFile(fileName):
 def download():
 
     # Get file with all class from a course
-    fileindex = returnFile('index')
+    fileindex = returnFile(mainIndexFilename)
     for line in fileindex:
         courseIndexFile = line.split('<>')[0]
-        courseDirName = line.split('<>')[1] 
+        courseDirName = line.split('<>')[1].replace(' ','_')
         courseFileName  = '.' + courseDirName 
 
         print( '\n\nGetting ' + courseFileName + ' <---------------------------------------------------')
-        courseFileName = courseFileName.replace(' ','_').lower()
+        courseFileName = courseFileName.lower()
 
         tmp = wget + ' ' + courseFileName + ' ' + courseIndexFile
         print(tmp)
@@ -55,28 +62,40 @@ def download():
 
         # Clean
         print('\n\nRemoving useless files')
-        os.system( 'rm -f ' + courseFileName )
+        os.system( 'rm -f ' + courseFileName + ' ' + downloadOutputFilename )
 
         # Download the files naming them
         tmp = 'mkdir -p ' + courseDirName
         print(tmp)
         os.system(tmp)
         
-        counter = 0
+        flagRetry = True
+        while flagRetry:
+            counter = 0
+            for i in addressList:
+                address = i.split('<>')[0]
+                classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
+            
+                tmp = getflash + classroom + youtube + address + ' 2>&1 | tee ' + downloadOutputFilename 
+                print('\n' + tmp )
+                os.system( tmp )
+                counter = counter + 1
+                
+                for j in returnFile( downloadOutputFilename ):
+                    if messageIfAlreadyDownloaded in j:
+                        flagRetry = False
+                        break
+                    if messageIfDownloadFinished in j:
+                        flagRetry = False
+                        break
+
         for i in addressList:
             address = i.split('<>')[0]
             classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
-        
-            tmp = getflash + classroom + youtube + address
-            print('\n' + tmp )
-            os.system( tmp )
-            counter = counter + 1
-
+            
             tmp = 'mv -f ' + classroom + ' ' + courseDirName
             print( tmp )
             os.system( tmp )
-        
-
 
 
 # ------------------------------------------------------------

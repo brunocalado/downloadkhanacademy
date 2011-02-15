@@ -89,6 +89,7 @@ def download():
                         flagRetry = False
                         break
 
+        counter = 0
         for i in addressList:
             address = i.split('<>')[0]
             classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
@@ -97,6 +98,7 @@ def download():
             print( tmp )
             os.system( tmp )
 
+            counter = counter + 1
 
 # ------------------------------------------------------------
 # Main

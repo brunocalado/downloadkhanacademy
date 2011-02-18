@@ -88,6 +88,7 @@ def download():
                     if messageIfDownloadFinished in j:
                         flagRetry = False
                         break
+                    flagRetry = True
 
         counter = 0
         for i in addressList:

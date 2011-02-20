@@ -13,17 +13,23 @@ import sys
 # ------------------------------------------------------------
 addressList = []
 
-
-wget = 'wget -c --output-document'
-getflash = 'get_flash_videos --quality low --filename'
+# Constants
 youtube = "http://www.youtube.com/watch?v="
-
 messageIfDownloadFinished = 'Done. Saved'
 messageIfAlreadyDownloaded = 'has been fully downloaded'
 flagRetry = False
 
+# Configuration
 mainIndexFilename = 'index'
 downloadOutputFilename = 'temp'
+ffmpeg_threads = '-threads 4 '
+
+# Command line
+wget = 'wget -c --output-document'
+getflash = 'get_flash_videos --quality low --filename'
+ffmpeg_p1 = 'ffmpeg -y -benchmark' + ffmpeg_threads + '-strict experimental -i'
+ffmpeg_p2 = '-acodec aac -ab 128k -vcodec mpeg4 -b 1200k -mbd 2 -flags +mv4+aic -trellis 1 -cmp 2 -subcmp 2 -s 320x240 -metadata title='
+
 
 # ------------------------------------------------------------
 # Functions
@@ -90,6 +96,20 @@ def download():
                         break
                     flagRetry = True
 
+        # Convert the files to the desired format
+        counter = 0
+        for i in addressList:
+            address = i.split('<>')[0]
+            classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
+            
+            tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','') + classroom.replace('.flv','.mp4')
+            print( tmp )                                                 
+            #os.system( tmp )
+
+            counter = counter + 1 
+
+        sys.exit()
+        # Move files
         counter = 0
         for i in addressList:
             address = i.split('<>')[0]
@@ -99,11 +119,13 @@ def download():
             print( tmp )
             os.system( tmp )
 
-            counter = counter + 1
+            counter = counter + 1 
 
 # ------------------------------------------------------------
 # Main
 # ------------------------------------------------------------
 if __name__ == "__main__":
     download()
+
+
 

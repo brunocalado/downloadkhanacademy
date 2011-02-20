@@ -9,6 +9,7 @@ Software Requeriments:
     - python 3.x
     - get_flash_video 1.24
     - Linux shell
+    - ffmpeg ( For convertion )
 
 
 

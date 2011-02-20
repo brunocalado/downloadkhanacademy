@@ -10,7 +10,6 @@ import sys
 # ------------------------------------------------------------
 # Variables and Constants
 # ------------------------------------------------------------
-addressList = []
 
 # Constants
 youtube = "http://www.youtube.com/watch?v="
@@ -22,14 +21,15 @@ mainIndexFilename = 'index'             # File with the courses to be downloaded
 downloadOutputFilename = 'temp'
 ffmpeg_threads = '-threads 4 '          # threads for ffmpeg
 retryIfDownloadFail = True
-convertVideos = False
-
+convertVideos = True
+debug = False
 
 # Command line
 wget = 'wget -c --output-document'
 getflash = 'get_flash_videos --quality low --filename'
 ffmpeg_p1 = 'ffmpeg -y -benchmark ' + ffmpeg_threads + '-strict experimental -i'
 ffmpeg_p2 = '-acodec aac -ab 128k -vcodec mpeg4 -b 1200k -mbd 2 -flags +mv4+aic -trellis 1 -cmp 2 -subcmp 2 -s 320x240 -metadata title='
+ffmpeg_p3 = '-metadata album='
 
 # ------------------------------------------------------------
 # Functions
@@ -51,6 +51,8 @@ def download():
     # Get file with all classes from a course
     fileindex = returnFile(mainIndexFilename)           # Load file with desired courses
     for line in fileindex:
+        addressList = []
+
         courseIndexFile = line.split('<>')[0]
         courseDirName = line.split('<>')[1].replace(' ','_')
         courseFileName  = '.' + courseDirName 
@@ -60,7 +62,7 @@ def download():
 
         tmp = wget + ' ' + courseFileName + ' ' + courseIndexFile
         message(tmp)
-        os.system(tmp)
+        if not debug: os.system(tmp)
         
         # Create a list with all links from a course
         for i in returnFile( courseFileName ):
@@ -69,66 +71,62 @@ def download():
                 addressList.append( str( str(result[0]) ) + '<>'  + str(result[1]) )
 
         # Clean
-        message('Removing useless files')
-        os.system( 'rm -f ' + courseFileName + ' ' + downloadOutputFilename )
+        tmp  = 'rm -f ' + courseFileName + ' ' + downloadOutputFilename
+        message( tmp )
+        if not debug: os.system(tmp)
 
         
         # Download class by class
-        if retryIfDownloadFail: flagRetry = True
-        else:                   flagRetry = False
+        classroomList = []
 
-        while flagRetry:
-            counter = 0
-            for i in addressList:
-                address = i.split('<>')[0]
-                classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
+        counter = 0
+        for i in addressList:
+            address = i.split('<>')[0]
+            classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" ' 
+            classroomList.append( classroom )
+        
+            tmp = getflash + classroom + youtube + address + ' 2>&1 | tee ' + downloadOutputFilename 
+            message( tmp )
+            if not debug: os.system(tmp)
             
-                tmp = getflash + classroom + youtube + address + ' 2>&1 | tee ' + downloadOutputFilename 
-                message( tmp )
-                os.system( tmp )
-                counter = counter + 1
-                
-                if retryIfDownloadFail:
-                    for j in returnFile( downloadOutputFilename ):
-                        if messageIfAlreadyDownloaded in j:
-                            flagRetry = False
-                            break
-                        if messageIfDownloadFinished in j:
-                            flagRetry = False
-                            break
-                        flagRetry = True
+            if retryIfDownloadFail:
+                for j in returnFile( downloadOutputFilename ):
+                    if messageIfAlreadyDownloaded in j:
+                        flagRetry = False
+                        break
+                    if messageIfDownloadFinished in j:
+                        flagRetry = False
+                        break
+                    flagRetry = True
+                if flagRetry:
+                    if not debug: os.system(tmp)
+
+
+            counter = counter + 1
 
         # Convert the files to the desired format
-        if convertFiles:
+        if convertVideos:
             counter = 0
-            for i in addressList:
-                address = i.split('<>')[0]
-                classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
-                
-                tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + classroom.replace('.flv','.mp4')[1:]
+            for classroom in classroomList:
+                tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + ffmpeg_p3 + courseDirName + ' ' + classroom.replace('.flv','.mp4')[1:]
                 message( tmp )                                                 
-                os.system( tmp )
+                if not debug: os.system(tmp)
 
                 counter = counter + 1 
-
 
         # Create the directory
         tmp = 'mkdir -p ' + courseDirName
         message(tmp)
-        os.system(tmp)
+        if not debug: os.system(tmp)
 
         # Move files
         counter = 0
-        for i in addressList:
-            address = i.split('<>')[0]
-            if convertFiles:
-                classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.mp4" '
-            else:
-                classroom = ' "' + str(counter).zfill(3) + '_' + i.split('<>')[1].replace(' ','_') + '.flv" '
+        for classroom in classroomList:
+            if convertVideos: classroom.replace('.flv','.mp4')
             
-            tmp = 'mv -f ' + classroom + ' ' + courseDirName
+            tmp = 'mv -f' + classroom + courseDirName
             message( tmp )
-            os.system( tmp )
+            if not debug: os.system(tmp)
 
             counter = counter + 1 
 

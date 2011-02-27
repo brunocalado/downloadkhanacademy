@@ -106,15 +106,15 @@ def download():
                 if flagRetry:
                     if not debug: os.system(tmp)
 
-
             counter = counter + 1
 
         # Convert the files to the desired format
         if convertVideos:
             counter = 0
             for classroom in classroomList:
-                finalFile = classroom.replace('.flv','.mp4')[1:] 
-                if os.path.exists( finalFile ):
+                finalFile = classroom.replace('.flv','.mp4')[1:].replace(' ','').replace('"', '')
+                
+                if not os.path.exists( finalFile ):
                     tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + ffmpeg_p3 + courseDirName + ' ' + finalFile
                     message( tmp )
                     if not debug: os.system(tmp)
@@ -123,8 +123,6 @@ def download():
                 else:
                     message("File already converted.")
         
-        sys.exit()
-
         # Create the directory
         tmp = 'mkdir -p ' + courseDirName
         message(tmp)
@@ -133,7 +131,7 @@ def download():
         # Move files
         counter = 0
         for classroom in classroomList:
-            if convertVideos: classroom = classroom.replace('.flv','.mp4')
+            if convertVideos: classroom = classroom + ' ' + classroom.replace('.flv','.mp4')
             
             tmp = 'mv -f' + classroom + courseDirName
             message( tmp )

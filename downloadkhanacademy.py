@@ -46,6 +46,11 @@ def message(msg):
     print( '# ' + msg )
     print( '#' + 80*'-' )
 
+def removeSpecialChars(string):
+    print(' ')
+
+
+
 def download():
 
     # Get file with all classes from a course
@@ -108,11 +113,17 @@ def download():
         if convertVideos:
             counter = 0
             for classroom in classroomList:
-                tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + ffmpeg_p3 + courseDirName + ' ' + classroom.replace('.flv','.mp4')[1:]
-                message( tmp )                                                 
-                if not debug: os.system(tmp)
+                finalFile = classroom.replace('.flv','.mp4')[1:] 
+                if os.path.exists( finalFile ):
+                    tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + ffmpeg_p3 + courseDirName + ' ' + finalFile
+                    message( tmp )
+                    if not debug: os.system(tmp)
 
-                counter = counter + 1 
+                    counter = counter + 1
+                else:
+                    message("File already converted.")
+        
+        sys.exit()
 
         # Create the directory
         tmp = 'mkdir -p ' + courseDirName
@@ -122,7 +133,7 @@ def download():
         # Move files
         counter = 0
         for classroom in classroomList:
-            if convertVideos: classroom.replace('.flv','.mp4')
+            if convertVideos: classroom = classroom.replace('.flv','.mp4')
             
             tmp = 'mv -f' + classroom + courseDirName
             message( tmp )

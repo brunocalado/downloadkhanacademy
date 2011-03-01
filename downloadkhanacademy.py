@@ -112,9 +112,10 @@ def download():
         if convertVideos:
             counter = 0
             for classroom in classroomList:
-                finalFile = classroom.replace('.flv','.mp4')[1:].replace(' ','').replace('"', '')
+                finalFile = classroom.replace('.flv','.mp4')[1:].replace(' ','')
+                finalFileTest = classroom.replace('.flv','.mp4')[1:].replace(' ','').replace('"', '')
                 
-                if not os.path.exists( finalFile ):
+                if not os.path.exists( finalFileTest ):
                     tmp = ffmpeg_p1 + classroom + ffmpeg_p2 + classroom.replace('.flv','')[1:] + ffmpeg_p3 + courseDirName + ' ' + finalFile
                     message( tmp )
                     if not debug: os.system(tmp)

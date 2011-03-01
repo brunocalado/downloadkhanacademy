@@ -21,7 +21,7 @@ mainIndexFilename = 'index'             # File with the courses to be downloaded
 downloadOutputFilename = 'temp'
 ffmpeg_threads = '-threads 4 '          # threads for ffmpeg
 retryIfDownloadFail = True
-convertVideos = True
+convertVideos = False
 debug = False
 
 # Command line

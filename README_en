@@ -1,10 +1,16 @@
 #--------------------------------------------------------------------------------
-Download Khan Academy
+# Download Khan Academy
 #--------------------------------------------------------------------------------
+
+This script allow you do download a entire course from Khan Academy directly from
+the website. So you can have a updated course without trouble.
+
+You can enable convertion too. So after download the course ir will convert the
+videos to a desired format.
 
 
 #--------------------------------------------------------------------------------
-Software Requeriments:
+# Software Requeriments:
 #--------------------------------------------------------------------------------
     - python 3.x
     - get_flash_video 1.24
@@ -14,17 +20,31 @@ Software Requeriments:
 
 
 #--------------------------------------------------------------------------------
-Using
+# Using
 #--------------------------------------------------------------------------------
-1 - ) Open the file index and delete the unwanted courses. All courses left in the file will be downloaded.
+1 - ) Open the file index and delete the unwanted courses. All courses left in 
+the file will be downloaded.
 
-2 - ) Execute downloadkhanacademy.py giving the following command on the shell
-    ./downloadkhanacademy.py
+2 - ) You have to enable convert files if you want it. To do it just put True 
+instead False in the variable convertVideos in the beginning of the file 
+downloadkhanacademy.py
+ 
+3 - ) Execute downloadkhanacademy.py giving the following command on the shell:
+./downloadkhanacademy.py
 
-3 - ) The program will open the file index and download the courses in there.
+4 - ) The program will open the file index and download the courses in there.
 
 
 If one or more videos fail to download the script will retry to get them.
 
 You can copy the file indexFULL to index so you can have all courses to choose.
+
+
+
+#--------------------------------------------------------------------------------
+# TODO
+#--------------------------------------------------------------------------------
+- use args
+- easy convertion type change
+- self update
 
